@@ -1,0 +1,19 @@
+column,source_file,derivation_rule,description,gotcha
+order_id,olist_orders_dataset.csv,copied as-is,"Primary key of this table: one row per order, exactly 99,441 rows.",Unique in this table. In the raw data it is also unique.
+customer_id,olist_orders_dataset.csv,copied as-is,The customer identifier the order was placed under.,"NOT a person: 2,997 identifiers belong to more than one customer_id."
+customer_unique_id,olist_customers_dataset.csv,"customers.drop_duplicates('customer_id', keep='last').set_index('customer_id')",The person behind the customer_id. Count PEOPLE with this column.,"Pseudonymous identifier inherited from the source (a hash). No names, emails, addresses or phone numbers are included in this dataset."
+customer_state,olist_customers_dataset.csv,same join as customer_unique_id,Brazilian state (2-letter code) of the customer's address.,Geographical only - no street address.
+customer_city,olist_customers_dataset.csv,same join as customer_unique_id,City of the customer's address.,Geographical only.
+order_status,olist_orders_dataset.csv,copied as-is,"Status of the order: delivered, shipped, canceled, unavailable, invoiced, processing, created, approved.","96,478 orders say 'delivered' but only 96,476 carry a delivery date."
+order_purchase_ts,olist_orders_dataset.csv,order_purchase_timestamp parsed to datetime,Timestamp of the purchase.,Never missing.
+order_month,olist_orders_dataset.csv,order_purchase_ts formatted as %Y-%m,"Calendar month of the purchase, e.g. 2017-10. Use it for monthly time series.","Derived from the purchase timestamp, not from the delivery date."
+is_delivered,olist_orders_dataset.csv,order_delivered_customer_date notna,True when the order actually arrived (a real delivery date exists).,"This is a FACT about the data, not the same as order_status == 'delivered' (8 orders differ)."
+delivery_delay_days,olist_orders_dataset.csv,"(delivered_ts - estimated_delivery_ts) / 86400, NaN unless is_delivered",Days between the promised delivery date and the real delivery. Negative = arrived EARLY than promised.,"NaN for the 2,965 orders that were never delivered - do NOT fillna(0), that would fake 'delivered exactly on time'."
+item_count,olist_order_items_dataset.csv,groupby(order_id).order_item_id.nunique(),Number of distinct order items in the order.,The raw items table has NO duplicate rows at all (measured: 0).
+seller_count,olist_order_items_dataset.csv,groupby(order_id).seller_id.nunique(),Number of distinct sellers in the order.,-
+items_price_sum,olist_order_items_dataset.csv,groupby(order_id).price.sum(),Sum of the item prices (before freight).,"Total item value, NOT the revenue actually collected."
+items_freight_sum,olist_order_items_dataset.csv,groupby(order_id).freight_value.sum(),Sum of the shipping costs.,-
+payment_count,olist_order_payments_dataset.csv,groupby(order_id).payment_sequential.nunique(),Number of distinct payment records for the order.,"2,961 orders have more than one payment row (max 29). This is what makes a naive merge fan out."
+payment_value_sum,olist_order_payments_dataset.csv,groupby(order_id).payment_value.sum(),Total amount actually paid for the order. THIS is the revenue number.,"Differs from items_price_sum + items_freight_sum by 165,318.88 in total; the two are not supposed to be identical."
+payment_types,olist_order_payments_dataset.csv,'|'.join(sorted(set(payment_type))),"Payment methods used, sorted and joined with '|', e.g. 'credit_card|voucher'.",Split on '|' if you need one row per method.
+review_score,olist_order_reviews_dataset.csv,"reviews.sort_values(['order_id','review_score']).drop_duplicates('order_id', keep='last')","The customer's review score, 1-5. NaN when the order has no review.","Collapsed BY ORDER (highest score kept), never by review_id: 789 review_ids appear on different orders and deduping by review_id would delete 545 orders' reviews entirely."

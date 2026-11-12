@@ -1,0 +1,8 @@
+primary_payment_method,order_count,order_share_pct,total_revenue,revenue_share_pct,avg_ticket_size,avg_review_score
+Credit Card,74259,74.68,12397278.59,77.44,166.95,4.091
+Boleto,19784,19.9,2869361.27,17.92,145.03,4.089
+Multiple Methods (credit_card + voucher),2245,2.26,338717.37,2.12,150.88,4.076
+Debit Card,1527,1.54,217939.79,1.36,142.72,4.171
+Voucher,1621,1.63,185422.28,1.16,114.39,3.95
+Multiple Methods (credit_card + debit_card),1,0.0,152.82,0.0,152.82,
+Not Defined,3,0.0,0.0,0.0,0.0,1.667

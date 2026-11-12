@@ -1,0 +1,5 @@
+delivery_category,order_count,pct_of_delivered,avg_delay_days,avg_review_score,positive_reviews_count,positive_review_pct
+Early (>7 days early),71308,73.91,-15.16,4.319,59264,83.55
+On Time (0-7 days early),17341,17.97,-4.16,4.203,13780,79.96
+Late (1-7 days late),4481,4.64,2.91,3.186,2247,50.96
+Severely Late (>7 days late),3346,3.47,18.45,1.733,410,12.6
